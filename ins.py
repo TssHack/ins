@@ -25,6 +25,7 @@ cl.device_settings = {
 
 def login():
     try:
+        # بررسی وجود فایل session
         if os.path.exists("session.json"):
             cl.load_settings("session.json")
         cl.login(USERNAME, PASSWORD)
@@ -55,6 +56,7 @@ last_checked = {}
 
 while True:
     try:
+        # گرفتن تردهای جدید
         threads = cl.direct_threads(amount=10)
         for thread in threads:
             messages = sorted(thread.messages, key=lambda m: m.timestamp, reverse=True)
@@ -71,12 +73,13 @@ while True:
             message_text = last_message.text
             user_id = str(last_message.user_id)
 
+            # چک کردن اینکه آیا پیام قبلاً بررسی شده است یا نه
             if thread_id not in last_checked or last_checked[thread_id] != last_message.id:
                 user = cl.user_info(last_message.user_id)
                 print(f"پیام جدید از @{user.username}: {message_text}")
 
                 # علامت زدن پیام به عنوان دیده‌شده
-                cl.direct_mark_seen(thread_id, last_message.id)
+                cl.direct_mark_seen(thread_id)
 
                 # گرفتن پاسخ از هوش مصنوعی
                 ai_reply = get_ai_response(message_text, user_id)
