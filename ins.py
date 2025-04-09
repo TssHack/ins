@@ -78,14 +78,19 @@ while True:
                 user = cl.user_info(last_message.user_id)
                 print(f"پیام جدید از @{user.username}: {message_text}")
 
-                # گرفتن پاسخ از هوش مصنوعی
-                ai_reply = get_ai_response(message_text, user_id)
+                # بررسی اینکه آیا پیام از طرف هوش مصنوعی ارسال نشده است
+                if message_text.lower().startswith("ai"):  # فقط پیام‌هایی که با "ai" شروع می‌شود پردازش شوند
+                    # علامت زدن پیام به عنوان دیده‌شده
+                    cl.direct_mark_seen(thread_id)
 
-                # ارسال پاسخ
-                cl.direct_send(ai_reply, [last_message.user_id])
+                    # گرفتن پاسخ از هوش مصنوعی
+                    ai_reply = get_ai_response(message_text, user_id)
 
-                # ذخیره آی‌دی آخرین پیام
-                last_checked[thread_id] = last_message.id
+                    # ارسال پاسخ
+                    cl.direct_send(ai_reply, [last_message.user_id])
+
+                    # ذخیره آی‌دی آخرین پیام
+                    last_checked[thread_id] = last_message.id
 
         time.sleep(5)
 
