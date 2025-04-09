@@ -78,9 +78,6 @@ while True:
                 user = cl.user_info(last_message.user_id)
                 print(f"پیام جدید از @{user.username}: {message_text}")
 
-                # علامت زدن پیام به عنوان دیده‌شده
-                cl.direct_mark_seen(thread_id)
-
                 # گرفتن پاسخ از هوش مصنوعی
                 ai_reply = get_ai_response(message_text, user_id)
 
