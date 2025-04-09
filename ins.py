@@ -16,7 +16,7 @@ cl = Client()
 # cl.set_proxy("http://username:password@proxy_ip:proxy_port")
 
 # شبیه‌سازی دستگاه موبایل واقعی
-cl.set_device_settings({
+cl.device_settings = {
     "app_version": "239.0.0.12.119",
     "android_version": 25,
     "android_release": "7.1.2",
@@ -25,7 +25,7 @@ cl.set_device_settings({
     "manufacturer": "Samsung",
     "model": "Galaxy S9",
     "device": "starlte",
-})
+}
 
 # تابع ورود و ذخیره سشن
 def login():
