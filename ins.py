@@ -4,18 +4,14 @@ import time
 import os
 import traceback
 
-# اطلاعات ورود به حساب اینستاگرام
 USERNAME = "gpt4_ehsan"
 PASSWORD = "ehsan13841386"
 
-# اطلاعات API هوش مصنوعی
 API_URL = "https://gpt4-ehsan.liara.run/ehsan/g"
 API_LICENSE = "g9s7B3lPZVXN3k2hD2fWgRzOq67d2XKZbgcnqVQ4Ksgg"
 
-# ایجاد یک نمونه از کلاینت اینستاگرام
 cl = Client()
 
-# تنظیمات دستگاه شبیه‌سازی شده
 cl.device_settings = {
     "app_version": "239.0.0.12.119",
     "android_version": 25,
@@ -27,7 +23,6 @@ cl.device_settings = {
     "device": "starlte",
 }
 
-# تابع ورود به حساب و ذخیره سشن
 def login():
     try:
         if os.path.exists("session.json"):
@@ -39,7 +34,6 @@ def login():
         print(f"خطا در ورود: {e}")
         traceback.print_exc()
 
-# تابع دریافت پاسخ از هوش مصنوعی
 def get_ai_response(message, user_id):
     try:
         response = requests.get(API_URL, params={
@@ -55,13 +49,10 @@ def get_ai_response(message, user_id):
     except Exception as e:
         return f"خطای اتصال به API: {e}"
 
-# ورود به حساب
 login()
 
-# دیکشنری برای نگهداری آخرین پیام‌های بررسی‌شده
 last_checked = {}
 
-# حلقه اصلی برای بررسی پیام‌ها و پاسخ‌دهی
 while True:
     try:
         threads = cl.direct_threads(amount=10)
@@ -72,7 +63,7 @@ while True:
 
             last_message = messages[0]
 
-            # بررسی اینکه پیام از طرف خود ربات نباشد
+            # فقط به پیام دیگران پاسخ بده
             if last_message.user_id == cl.user_id:
                 continue
 
@@ -84,13 +75,17 @@ while True:
                 user = cl.user_info(last_message.user_id)
                 print(f"پیام جدید از @{user.username}: {message_text}")
 
-                # دریافت پاسخ از هوش مصنوعی
+                # فعال‌سازی تایپینگ در چت
+                cl.direct_send_thread_action(thread_id, "mark_seen")  # پیام دیده شود
+                cl.direct_send_thread_action(thread_id, "indicate_activity")  # نمایش تایپینگ
+
+                # گرفتن پاسخ از هوش مصنوعی
                 ai_reply = get_ai_response(message_text, user_id)
 
-                # ارسال پاسخ به دایرکت
+                # ارسال پاسخ
                 cl.direct_send(ai_reply, [last_message.user_id])
 
-                # ذخیره آی‌دی آخرین پیام بررسی‌شده
+                # ذخیره آی‌دی آخرین پیام
                 last_checked[thread_id] = last_message.id
 
         time.sleep(5)
