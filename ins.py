@@ -1,21 +1,21 @@
 from instagrapi import Client
 import requests
 import time
-import traceback
 import os
+import traceback
 
+# اطلاعات ورود به حساب اینستاگرام
 USERNAME = "gpt4_ehsan"
 PASSWORD = "ehsan13841386"
+
+# اطلاعات API هوش مصنوعی
 API_URL = "https://gpt4-ehsan.liara.run/ehsan/g"
 API_LICENSE = "g9s7B3lPZVXN3k2hD2fWgRzOq67d2XKZbgcnqVQ4Ksgg"
 
-# استفاده از یک کلاینت اینستاگرام
+# ایجاد یک نمونه از کلاینت اینستاگرام
 cl = Client()
 
-# اگر لازم داری پروکسی ست کنی (اختیاری)
-# cl.set_proxy("http://username:password@proxy_ip:proxy_port")
-
-# شبیه‌سازی دستگاه موبایل واقعی
+# تنظیمات دستگاه شبیه‌سازی شده
 cl.device_settings = {
     "app_version": "239.0.0.12.119",
     "android_version": 25,
@@ -27,7 +27,7 @@ cl.device_settings = {
     "device": "starlte",
 }
 
-# تابع ورود و ذخیره سشن
+# تابع ورود به حساب و ذخیره سشن
 def login():
     try:
         if os.path.exists("session.json"):
@@ -39,7 +39,7 @@ def login():
         print(f"خطا در ورود: {e}")
         traceback.print_exc()
 
-# تابع گرفتن پاسخ از هوش مصنوعی
+# تابع دریافت پاسخ از هوش مصنوعی
 def get_ai_response(message, user_id):
     try:
         response = requests.get(API_URL, params={
@@ -55,13 +55,13 @@ def get_ai_response(message, user_id):
     except Exception as e:
         return f"خطای اتصال به API: {e}"
 
-# ورود
+# ورود به حساب
 login()
 
-# لیست برای نگهداری آخرین پیام‌ها
+# دیکشنری برای نگهداری آخرین پیام‌های بررسی‌شده
 last_checked = {}
 
-# حلقه اصلی پاسخ‌دهی
+# حلقه اصلی برای بررسی پیام‌ها و پاسخ‌دهی
 while True:
     try:
         threads = cl.direct_threads(amount=10)
@@ -72,7 +72,7 @@ while True:
 
             last_message = messages[0]
 
-            # فقط پاسخ به پیام‌های کاربران (نه خود ربات)
+            # بررسی اینکه پیام از طرف خود ربات نباشد
             if last_message.user_id == cl.user_id:
                 continue
 
@@ -81,16 +81,16 @@ while True:
             user_id = str(last_message.user_id)
 
             if thread_id not in last_checked or last_checked[thread_id] != last_message.id:
-                user = cl.user_info_by_id(last_message.user_id)
+                user = cl.user_info(last_message.user_id)
                 print(f"پیام جدید از @{user.username}: {message_text}")
 
-                # گرفتن پاسخ از هوش مصنوعی
+                # دریافت پاسخ از هوش مصنوعی
                 ai_reply = get_ai_response(message_text, user_id)
 
-                # ارسال پاسخ
+                # ارسال پاسخ به دایرکت
                 cl.direct_send(ai_reply, [last_message.user_id])
 
-                # ذخیره آی‌دی پیام آخر
+                # ذخیره آی‌دی آخرین پیام بررسی‌شده
                 last_checked[thread_id] = last_message.id
 
         time.sleep(5)
